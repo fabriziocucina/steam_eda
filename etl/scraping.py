@@ -38,7 +38,9 @@ def get_game_info(links: list) -> object:
     game_list: list = links
     # Create lists for the info
     developers,genres,languages,tags,publishers,categories = [],[],[],[],[],[]
-    release_dates,prices,old_userscores,metascores,owners,followers = [],[],[],[],[],[]
+    release_dates,prices,old_userscores,metascores,owners,followers,title = [],[],[],[],[],[],[]
+    # Temporal lists
+    genres_temp, languages_temp,tags_temp = [],[],[]
     # Looping the list with the links
     for game in tqdm(game_list):
         # Requesting the https response
@@ -47,27 +49,37 @@ def get_game_info(links: list) -> object:
 
         for ahref in game_soup.find_all("a"): # for ahref
             try:
-                if "dev" in str(ahref):
-                    developers.append(ahref.text)
+                if "/genre/" in str(ahref):
+                    genres_temp.append(ahref.text)
             except:
-                    developers.append("N/A")
-            try:
-                if "genre" in str(ahref):
-                    genres.append(ahref.text)
-            except:
-                    genres.append("N/A")
+                    genres_temp.append("N/A")
             try:
                 if "language" in str(ahref):
-                    languages.append(ahref.text)
+                    languages_temp.append(ahref.text)
             except:
-                    languages.append("N/A")
+                    languages_temp.append("N/A")
             try:
                 if "tag" in str(ahref):
-                    tags.append(ahref.text)
+                    tags_temp.append(ahref.text)
             except:
-                    tags.append("N/A")
+                    tags_temp.append("N/A")
+        # Make union of the values, clean temporal list and append it to the main list
+        genres_union = ",".join(genres_temp)
+        genres_temp.clear()
+        genres.append(genres_union)
+        languages_union = ",".join(languages_temp)
+        languages_temp.clear()
+        languages.append(languages_union)
+        tags_union = ",".join(tags_temp)
+        tags_temp.clear()
+        tags.append(tags_union)
 
         for strong in game_soup.find_all("strong"): # for strong
+            try:
+                if "Developer" in str(strong):
+                    developers.append(strong.find_next_sibling("a").text)
+            except:
+                    developers.append("N/A")
             try:
                 if "Publisher" in str(strong):
                     publishers.append(strong.nextSibling.nextSibling.text)
@@ -75,7 +87,7 @@ def get_game_info(links: list) -> object:
                     publishers.append("N/A")
             try:
                 if "Category" in str(strong):
-                    categories.extend(strong.nextSibling.strip().split(", "))
+                    categories.append(strong.nextSibling)
             except:
                     categories.append("N/A")
             try:
@@ -108,8 +120,11 @@ def get_game_info(links: list) -> object:
                     followers.append(strong.nextSibling.replace(": ",""))
             except:
                     followers.append("N/A")
+        # Get title       
+        title.append(soup.find("div" ,attrs = {"class":"col-md-4 no-padding"}).find("h3").text)
 
     data = {
+            "title": title,
             "developer": developers,
             "genre": genres,
             "language": languages,
@@ -123,14 +138,13 @@ def get_game_info(links: list) -> object:
             "owners": owners,
             "followers": followers
         }
-   # df = pd.DataFrame(data)
+
     logging.info("Data extracted finalized...")
     return data
 
-def get_excel(df, year: str):
-    logging.info("Saving results...")
-    df_excel  = df
-    df_excel.to_excel("data/steam_games_{}.xlsx".format(year))
-    logging.info("Scraping is done...")
+def get_df(df) -> pd.DataFrame:
+    logging.info("Creating the Dataframe...")
+    df = pd.DataFrame(df)
+    return df
 
 
