@@ -1,4 +1,5 @@
 sites:
   steam_spy_main: https://steamspy.com/
   steam_spy_year: https://steamspy.com/year/
-year: 2018
+year: 2019
+path_extract: C:\Users\fabri\OneDrive\Escritorio\steam_eda\data
