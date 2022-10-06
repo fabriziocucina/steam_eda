@@ -48,20 +48,20 @@ def get_game_info(links: list) -> object:
         game_soup = soup.find("div" ,attrs = {"class":"col-md-4 no-padding"}).find("p")
 
         for ahref in game_soup.find_all("a"): # for ahref
-            try:
-                if "/genre/" in str(ahref):
+            if "/genre/" in str(ahref):
+                try:
                     genres_temp.append(ahref.text)
-            except:
+                except:
                     genres_temp.append("N/A")
-            try:
-                if "language" in str(ahref):
+            if "language" in str(ahref):
+                try:
                     languages_temp.append(ahref.text)
-            except:
+                except:
                     languages_temp.append("N/A")
-            try:
-                if "tag" in str(ahref):
+            if "tag" in str(ahref):
+                try:
                     tags_temp.append(ahref.text)
-            except:
+                except:
                     tags_temp.append("N/A")
         # Make union of the values, clean temporal list and append it to the main list
         genres_union = ",".join(genres_temp)
@@ -75,53 +75,66 @@ def get_game_info(links: list) -> object:
         tags.append(tags_union)
 
         for strong in game_soup.find_all("strong"): # for strong
-            try:
-                if "Developer" in str(strong):
+            if "Developer" in str(strong):
+                try:
                     developers.append(strong.find_next_sibling("a").text)
-            except:
+                except:
                     developers.append("N/A")
-            try:
-                if "Publisher" in str(strong):
+            if "Publisher" in str(strong):
+                try:
                     publishers.append(strong.nextSibling.nextSibling.text)
-            except:
+                except:
                     publishers.append("N/A")
-            try:
-                if "Category" in str(strong):
+            if "Category" in str(strong):
+                try:
                     categories.append(strong.nextSibling)
-            except:
+                except:
                     categories.append("N/A")
-            try:
-                if "Release date" in str(strong):
+            if "Release date" in str(strong):
+                try:
                     release_dates.append(strong.nextSibling.replace(":","").replace("(previously","").strip())
-            except:
+                except:
                     release_dates.append("N/A")
             try:
-                if "Price" in str(strong):
+                if not "Price" in str(strong):
+                    prices.append("N/A")
+                else:   
                     prices.append(strong.nextSibling.strip())
             except:
                     prices.append("N/A")
             try:
-                if "Old userscore" in str(strong):
+                if not "Old userscore" in str(strong):
+                    old_userscores.append("N/A")
+                else:
                     old_userscores.append(strong.nextSibling.strip())
             except:
                     old_userscores.append("N/A")
             try:
-                if "Metascore" in str(strong):
+                if not "Metascore" in str(strong):
+                    metascores.append("N/A")
+                else:
                     metascores.append(strong.nextSibling.strip())
             except:
                     metascores.append("N/A")
             try:
-                if "Owners" in str(strong):
+                if not "Owners" in str(strong):
+                    owners.append("N/A")
+                else:
                     owners.append(strong.nextSibling.replace(r": ","").strip().replace(u"\xa0..\xa0",u" - "))
             except:
                     owners.append("N/A")
             try:
-                if "Followers" in str(strong):
+                if not "Followers" in str(strong):
+                    followers.append("N/A")
+                else:
                     followers.append(strong.nextSibling.replace(": ",""))
             except:
                     followers.append("N/A")
-        # Get title       
-        title.append(soup.find("div" ,attrs = {"class":"col-md-4 no-padding"}).find("h3").text)
+        # Get title 
+        try:      
+            title.append(soup.find("div" ,attrs = {"class":"col-md-4 no-padding"}).find("h3").text)
+        except:
+            title.append("N/A")
 
     data = {
             "title": title,
